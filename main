@@ -1,0 +1,2582 @@
+#include <stdio.h>
+#include<time.h>
+#include <stdlib.h>
+#include<string.h>
+#include<dos.h>
+#include <ctype.h>
+
+#include "structure.h"
+/*****************************************************************************************************************************************************************/
+//test de saisie
+int estAlphabetique(const char *chaine) {
+   int i = 0;
+    for (i = 0; chaine[i] != '\0'; i++) {
+   
+        if (!isalpha(chaine[i])) {
+            return 0;
+        }
+    }
+    return 1;// alphabétique
+}
+/****************************************************************************************************************************************************************/
+int estEntier(const int entier) {
+    int temp = entier;
+
+    // Vérifier chaque chiffre dans l'entier
+    while (temp != 0) {
+        int chiffre = temp % 10;
+       
+        // Vérifier si le chiffre n'est pas un chiffre décimal
+        if (chiffre < 0 || chiffre > 9) {
+            return 0; // L'entier n'est pas composé uniquement de chiffres
+        }
+
+        temp /= 10;
+    }
+
+    return 1; // L'entier est composé uniquement de chiffres
+}
+
+/****************************************************************************************************************************************************************/
+
+
+static int messageIdCounter = 1; //variable statique pour identifier chaque message de façon unique
+static int profileIdCounter = 1; //variable statique pour identifier chaque profil de façon unique
+static int auteurIdCounter = 1; //variable statique pour identifier chaque auteur de façon unique
+static int rubriqueIdCounter = 1; //variable statique pour identifier chaque rubrique de façon unique
+static int forumIdCounter = 1; //variable statique pour identifier chaque forum de façon unique
+
+
+/****************************************************************************************************************************************************************/
+
+
+///////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation des profils  ///////////  
+//////////////////////////////////////////////////////////////////////
+
+
+/////////////////////
+///////Saisir Profil
+////////////////////
+
+Profil saisirProfil() {
+  Profil P;
+  int a, b, c;
+  P.id_profil = profileIdCounter++;
+  do
+  {
+  printf("donner le numero d'inscription:\n");
+    scanf("%d", & P.num_inscri);
+    a=estEntier(P.num_inscri);
+  }while(a==0);
+  do
+  {
+  printf("donner votre nom : \n");
+  scanf("%s", P.nom);
+  a=estAlphabetique(P.nom);
+  }while(a==0);
+  do{
+  printf("donner votre prenom : \n");
+    scanf("%s", P.prenom);
+    a=estAlphabetique(P.prenom);
+  }while(a==0);
+  do
+  {
+  printf("donner votre adresse : \n");
+    scanf("%s", P.adresse);
+    a=estAlphabetique(P.adresse);
+  }while(a==0);
+  printf("veuillez remplir votre date de naissance : \n");
+  printf("donner le jour de votre naissance :");
+  scanf("%d", & P.date_naissance.jour);
+  printf("donner le mois de votre naissance : \n");
+  scanf("%d", & P.date_naissance.mois);
+  printf("donner l annee de votre naissance : \n");
+  scanf("%d", & P.date_naissance.annee);
+  do
+  {
+  printf("donner votre adresse mail : \n");
+    scanf("%s", P.adresse_mail);
+    a=estAlphabetique(P.adresse_mail);
+  }while(a==0);
+  printf("donner votre numero de telephone : ");
+  scanf("%ld", & P.num_tel);
+
+  return P;
+}
+
+
+///////////////////////
+///////Afficher Profil
+//////////////////////
+void afficherProfil(Profil P) {
+  printf(" coordonees sont les suivants : \n");
+  printf("numero d inscription est: %d \n", P.num_inscri);
+  printf("nom: %s \n", P.nom);
+  printf("prenom : %s \n", P.prenom);
+  printf("adresse : %s \n", P.adresse);
+  printf("date de naissance est : %d / %d / %d  \n", P.date_naissance.jour, P.date_naissance.mois, P.date_naissance.annee);
+  printf("adresse email est : %s \n", P.adresse_mail);
+  printf("num_tel : %ld \n", P.num_tel);
+}
+
+///////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation des auteurs  ///////////  
+//////////////////////////////////////////////////////////////////////
+
+Auteur saisirAuteur() {
+  int a ;
+  Auteur A;
+  A.id_auteur = auteurIdCounter++;
+  printf("donner la nature de votre passage sur le site (1 si vous avez un compte, 0 sinon): ");
+  scanf("%d", & A.type_compte);
+
+  if (A.type_compte == 1) {
+    printf("Vous avez un compte.\n");
+
+    // Saisir le profil
+    A.profil = (Profil * ) malloc(sizeof(Profil));
+    * A.profil = saisirProfil();
+  } else {
+    A.profil = NULL; // L'auteur n'a pas de profil
+  }
+
+  printf("donner la date du premier message :\n");
+  printf("donner le jour : ");
+  scanf("%d", & A.date_premier.jour);
+  printf("donner le mois : ");
+  scanf("%d", & A.date_premier.mois);
+  printf("donner l annee : ");
+  scanf("%d", & A.date_premier.annee);
+  printf("donner la date du dernier message :\n");
+  printf("donner le jour : ");
+  scanf("%d", & A.date_dernier.jour);
+  printf("donner le mois : ");
+  scanf("%d", & A.date_dernier.mois);
+  printf("donner l annee : ");
+  scanf("%d", & A.date_dernier.annee);
+  //if (A.profil != NULL) {
+  //free(A.profil);
+  //}
+  return A;
+}
+
+
+///////////////////////
+///////Afficher Auteur
+//////////////////////
+
+void afficherAuteur(Auteur A) {
+  printf("les coordonees de l auteur sont les suivants : \n");
+  printf("la date du premier message est %d / %d / %d ", A.date_premier.jour, A.date_premier.mois, A.date_premier.annee);
+  printf("la date du dernier message est %d / %d / %d", A.date_dernier.jour, A.date_dernier.mois, A.date_dernier.annee);
+  if (A.type_compte == 1) {
+    printf("vous possedez un profil dans le forum ");
+    printf("les coordonnes du profil sont les suivants ");
+    afficherProfil( * A.profil);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation des messages  ///////////  
+//////////////////////////////////////////////////////////////////////
+
+////////////////////////
+///////Afficher Message
+///////////////////////
+
+void afficherMessage(Message m) {
+  printf("ID du message : %d\n", m.id);
+  printf("L'auteur du message est %s \n", m.auteur.profil-> nom);
+  printf("Le titre du message est %s \n", m.titre);
+  printf("Le texte du message est %s \n", m.texte);
+  printf("La date de la publication du message est %d / %d / %d \n", m.date_publication.jour, m.date_publication.mois, m.date_publication.annee);
+}
+
+
+///////////////////////
+///////Saisir Message
+//////////////////////
+
+Message saisirMessage() {
+  int a;
+  Message m;
+  m.id = messageIdCounter++;
+  m.auteur.profil = (Profil * ) malloc(sizeof(Profil));
+  printf("Donner le type du message : ");
+  scanf("%d", & m.type);
+  do
+  {
+  printf("Donner le titre du message : ");
+    scanf("%s", m.titre);
+    a=estAlphabetique(m.titre);
+  }while(a==0);
+  fflush(stdin);
+  do
+  {
+  printf("Donner le texte du message : ");
+    gets(m.texte);
+    a=estAlphabetique(m.texte);
+  }while(a==0);
+  fflush(stdin);
+  printf("Donner la date de la publication du message sous forme dd mm yyyy : ");
+  scanf("%d %d %d", & m.date_publication.jour, & m.date_publication.mois, & m.date_publication.annee);
+
+  // Saisir les informations de l'auteur du message
+  do
+  {
+  printf("Donner le pseudo de l'auteur : ");
+    scanf("%s", m.auteur.profil -> nom);
+    a=estAlphabetique(m.auteur.profil->nom);
+  }while(a==0);
+  printf("Donner la date du premier message posté par l'auteur sous forme dd mm yyyy : ");
+  scanf("%d %d %d", & m.auteur.date_premier.jour, & m.auteur.date_premier.mois, & m.auteur.date_premier.annee);
+  printf("Donner la date du dernier message posté par l'auteur sous forme dd mm yyyy : ");
+  scanf("%d %d %d", & m.auteur.date_dernier.jour, & m.auteur.date_dernier.mois, & m.auteur.date_dernier.annee);
+  printf("Donner le nombre de messages postés par l'auteur : ");
+  scanf("%d", & m.auteur.nb_msp);
+
+  // Saisir d'autres informations sur l'auteur si nécessaire
+
+  return m;
+}
+
+
+///////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation des rubriques  ///////////  
+//////////////////////////////////////////////////////////////////////
+
+////////////////////////
+///////Saisir Rubrique
+///////////////////////
+
+Rubrique saisirRubrique() {
+  Rubrique r;
+  int a;
+  int n, m, i;
+  r.id_rubrique = rubriqueIdCounter++;
+  do
+  {
+  printf("Donner un theme a la rubrique : ");
+    scanf("%s", r.theme);
+    a=estAlphabetique(r.theme);
+  }while(a==0);
+  do
+  {
+  printf("Donner l'adresse mail de l'animateur de la rubrique : ");
+  scanf("%s", r.adresse_mail_animateur);
+  a=estAlphabetique(r.adresse_mail_animateur);
+  }while(a==0);
+  printf("Donner la date de création de la rubrique sous forme dd mm yyyy : ");
+  scanf("%d %d %d", & r.date_creation.jour, & r.date_creation.mois, & r.date_creation.annee);
+  printf("Donner le nombre de sites associes à la rubrique : ");
+  scanf("%d", & m);
+  for (i = 0; i < m; i++) {
+   do
+   {
+    printf("Donner le site associe a la rubrique : ");
+    scanf("%s", r.tab_sites[i].site);
+    a=estAlphabetique(r.tab_sites[i].site);
+   }while(a==0);
+  }
+  printf("Donner le nombre de messages : ");
+  scanf("%d",&n);
+  r.taille_tab_messages=0;
+  r.taille_tab_messages+= n;
+  r.tab_messages = (Message * ) malloc(n * sizeof(Message));
+  for (i = 0; i < n; i++) {
+    * (r.tab_messages + i) = saisirMessage();
+  }
+  return r;
+}
+
+
+////////////////////////
+///////Afficher Rubrique
+///////////////////////
+
+void afficherRubrique(Rubrique r, int n, int m) {
+  int i;
+  printf("L'adresse mail de l'animateur de la rubrique est %s \n", r.adresse_mail_animateur);
+  printf("Le theme de la rubrique est %s \n", r.theme);
+  printf("La date de creation de la rubrique est %d / %d / %d \n", r.date_creation.jour, r.date_creation.mois, r.date_creation.annee);
+  for (i = 0; i < n; i++) {
+    printf("La liste des sites associes a la rubrique est %s \n", r.tab_sites[i].site);
+  }
+  for (i = 0; i < m; i++) {
+    afficherMessage(r.tab_messages[i]);
+  }
+}
+
+
+///////////////////////
+///////Saisir Réponse
+//////////////////////
+
+MESS_REP saisirmessage_reponse(Message m, int id) {
+  MESS_REP MR;
+  MR.message = m;
+  MR.id_pere = id;
+  return MR;
+}
+
+///////////////////////////////////////////
+/////// Afficher id et titre d'un message
+///////////////////////////////////////////
+
+void afficherInfoMessage(Message m) {
+  printf("ID du message : %d\n", m.id);
+  printf("Le titre du message est %s \n", m.titre);
+}
+
+/////////////////////////////////////////////////////////
+/////// Afficher une réponse selon son Id
+////////////////////////////////////////////////////////
+void afficherReponsePrecise(ListeReponse * debut, int id) {
+  if (debut == NULL) {
+    printf("la liste est vide pas de reponses qui existent ");
+  } else {
+    ListeReponse * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> message.id_pere == id) {
+        afficherMessage(temp -> message.message);
+      }
+      temp = temp -> next;
+    }
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation des forums  ///////////  
+//////////////////////////////////////////////////////////////////////
+
+
+///////////////////////
+///////Afficher Forum
+//////////////////////
+
+void afficherForum(Forum f, int n) {
+  int i;
+  printf("L'adresse internet du forum est %s \n", f.adresse_internet);
+  printf("L'adresse mail du responsable du forum est %s \n", f.adresse_mail_responsable);
+  for (i = 0; i < n; i++) {
+    afficherRubrique(f.rubriques[i], 0, 0);
+  }
+}
+
+
+
+///////////////////////
+///////Saisir Forum
+//////////////////////
+
+Forum saisirForum() {
+  int n, i;
+  int a;
+  Forum f;
+  f.id_forum = forumIdCounter++;
+  do
+  {
+  printf("Donner une adresse internet : ");
+  scanf("%s",f.adresse_internet);
+  a=estAlphabetique(f.adresse_internet);
+  }while(a==0);
+ do
+ {
+  printf("Donner l'adresse mail du responsable : ");
+  scanf("%s",f.adresse_mail_responsable);
+  a=estAlphabetique(f.adresse_mail_responsable);
+ }while(a==0);
+  printf("Donner le nombre de rubriques : ");
+  scanf("%d", &n);
+  f.taille_rubriques=0;
+f.taille_rubriques=+n;
+  f.rubriques=(Rubrique *) malloc(n*sizeof(Rubrique));
+  for (i = 0; i < n; i++) {
+    f.rubriques[i] = saisirRubrique();
+  }
+  return f;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation de la liste chaînée des auteurs  ///////////  
+////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+/////// Ajouter un auteur à la liste chaînée des auteurs
+////////////////////////////////////////////////////////
+
+ListeAuteur * ajouterAuteurListe(ListeAuteur * debut, Auteur aut) {
+  ListeAuteur * b, * temp;
+  b = (ListeAuteur * ) malloc(sizeof(ListeAuteur));
+  b -> auteur = aut;
+  b -> next = NULL;
+  if (debut == NULL) {
+    debut = b;
+  } else {
+    temp = debut;
+    while (temp -> next != NULL) {
+      temp = temp -> next;
+
+    }
+    temp -> next = b;
+  }
+  return debut;
+}
+
+/////////////////////////////////////////////////////////
+/////// Afficher les auteurs depuis la liste chaînée des auteurs
+////////////////////////////////////////////////////////
+void afficherLesAuteurs(ListeAuteur * debut) {
+  ListeAuteur * temp;
+  temp = debut;
+  if (temp == NULL) {
+    printf("La liste est vide ");
+  } else {
+    while (temp != NULL) {
+      afficherAuteur(temp -> auteur);
+      temp = temp -> next;
+    }
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation de la liste chaînée des rubriques  ///////////  
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+/////// Ajouter une rubrique à la liste chaînée des rubriques
+////////////////////////////////////////////////////////
+
+ListeRubrique * ajouterRubriqueListe(ListeRubrique * debut, Rubrique rubrique) {
+  ListeRubrique * b, * temp;
+  b = (ListeRubrique * ) malloc(sizeof(ListeRubrique));
+  b -> rubrique = rubrique;
+  b -> next = NULL;
+
+  if (debut == NULL) {
+    debut = b;
+  } else {
+    temp = debut;
+    while (temp -> next != NULL) {
+      temp = temp -> next;
+    }
+    temp -> next = b;
+  }
+  return debut;
+}
+
+/////////////////////////////////////////////////////////
+/////// Afficher les rubriques depuis la liste chaînée des rubriques
+////////////////////////////////////////////////////////
+void afficherLesRubriques(ListeRubrique * debut, int n, int m) {
+  ListeRubrique * temp;
+  temp = debut;
+
+  if (temp == NULL) {
+    printf("La liste des rubriques est vide.\n");
+  } else {
+    while (temp != NULL) {
+      afficherRubrique(temp -> rubrique, n, m);
+      temp = temp -> next;
+    }
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation de la liste chaînée des forums  ///////////  
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+/////// Ajouter un forum à la liste chaînée des forums
+////////////////////////////////////////////////////////
+
+ListeForum * ajouterForumliste(ListeForum * debut, Forum f) {
+  ListeForum * b, * temp;
+  b = (ListeForum * ) malloc(sizeof(ListeForum));
+  b -> forum = f;
+  b -> next = NULL;
+  if (debut == NULL) {
+    debut = b;
+  } else {
+    temp = debut;
+    while (temp -> next != NULL) {
+      temp = temp -> next;
+
+    }
+    temp -> next = b;
+  }
+  return debut;
+
+}
+
+/////////////////////////////////////////////////////////
+/////// Afficher les forums depuis la liste chaînée des forums
+////////////////////////////////////////////////////////
+void afficherlisteForum(ListeForum * debut, int n) {
+  ListeForum * temp;
+  temp = debut;
+  if (temp == NULL) {
+    printf("La liste est vide ");
+  } else {
+    while (temp != NULL) {
+      afficherForum(temp -> forum, n);
+      temp = temp -> next;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation de la liste chaînée des profils  ///////////  
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+/////// Ajouter un profil à la liste chaînée des profils
+////////////////////////////////////////////////////////
+ListeProfil * ajouterProfilListe(ListeProfil * debut, Profil p) {
+  ListeProfil * b, * temp;
+  b = (ListeProfil * ) malloc(sizeof(ListeProfil));
+  b -> profil = p;
+  b -> next = NULL;
+  if (debut == NULL) {
+    debut = b;
+  } else {
+    temp = debut;
+    while (temp -> next != NULL) {
+      temp = temp -> next;
+
+    }
+    temp -> next = b;
+  }
+  return debut;
+
+}
+
+///////////////////////////////////////////////////////////
+/////// Afficher les profils depuis la liste chaînée des profils
+//////////////////////////////////////////////////////////
+void afficherListeProfil(ListeProfil * debut) {
+
+  ListeProfil * temp;
+  temp = debut;
+  if (temp == NULL) {
+    printf("La liste est vide ");
+  } else {
+    while (temp != NULL) {
+      afficherProfil(temp -> profil);
+      temp = temp -> next;
+    }
+  }
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////  Fonctions pour la manipulation de la liste chaînée des messages/réponses  ///////////  
+//////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////
+/////// Ajouter une réponse à la liste chaînée des réponses
+////////////////////////////////////////////////////////
+
+ListeReponse * ajouterReponseListe(ListeReponse * debut, MESS_REP m) {
+  ListeReponse * b, * temp;
+  b = (ListeReponse * ) malloc(sizeof(ListeReponse));
+  b -> message = m;
+  b -> next = NULL;
+  if (debut == NULL) {
+    debut = b;
+  } else {
+    temp = debut;
+    while (temp -> next != NULL) {
+      temp = temp -> next;
+    }
+    temp -> next = b;
+  }
+  return debut;
+}
+
+/////////////////////////////////////////////////////////
+/////// Ajouter un message à la liste chaînée des messages
+////////////////////////////////////////////////////////
+ListeMessage * ajouterMessageListe(ListeMessage * debut, Message m) {
+  ListeMessage * b, * temp;
+  b = (ListeMessage * ) malloc(sizeof(ListeMessage));
+  b -> message = m;
+  b -> next = NULL;
+
+  if (debut == NULL) {
+    debut = b;
+  } else {
+    temp = debut;
+    while (temp -> next != NULL) {
+      temp = temp -> next;
+    }
+    temp -> next = b;
+
+  }
+  return debut;
+}
+
+/////////////////////////////////////////////////////////
+/////// Afficher les messages depuis la liste chaînée des messages
+////////////////////////////////////////////////////////
+void afficherListeMessage(ListeMessage * debut) {
+  ListeMessage * temp;
+  temp = debut;
+  if (temp == NULL) {
+    printf("La liste est vide ");
+  } else {
+    while (temp != NULL) {
+      afficherMessage(temp -> message);
+      temp = temp -> next;
+    }
+  }
+}
+
+
+/////////////////////////////////////////////////////////
+/////// Afficher les titres et ids des messages depuis la liste chaînée des messages
+////////////////////////////////////////////////////////
+
+void afficherListeInfoMessage(ListeMessage * debut) {
+  ListeMessage * temp;
+  temp = debut;
+  if (temp == NULL) {
+    printf("La liste est vide ");
+  } else {
+    while (temp != NULL) {
+      afficherInfoMessage(temp -> message);
+      temp = temp -> next;
+    }
+  }
+}
+/////////////////////////////////////////////////////////
+/////// Afficher les réponses depuis la liste chaînée des réponses
+////////////////////////////////////////////////////////
+void afficherlisteReponse(ListeReponse * debut) {
+  ListeReponse * temp;
+  temp = debut;
+  if (temp == NULL) {
+    printf("la liste est vide ");
+  } else {
+    while (temp != NULL) {
+      afficherMessage(temp -> message.message);
+      printf("l id du message au quel repond ce message est le suivant %d", temp -> message.id_pere);
+      temp = temp -> next;
+    }
+  }
+}
+
+
+
+
+///////////////////////////////////////////////////////////
+/////// Afficher les profils associés à une rubrique donnée
+//////////////////////////////////////////////////////////
+
+void afficherProfilsRubrique(ListeRubrique * tete, char theme[25]) {
+  int i;
+  if (tete == NULL) {
+    printf("La liste est vide pas de rubrique existantes.");
+  } else {
+    ListeRubrique * temp;
+    temp = tete;
+    while (temp != NULL) {
+      if (strcmp(temp -> rubrique.theme, theme) == 0) {
+        for (i = 0; i <= max ; i++) {
+          afficherProfil( * (temp -> rubrique.tab_messages[i].auteur.profil));
+        }
+      } else {
+        printf("La rubrique n'existe pas.");
+      }
+      temp = temp -> next;
+    }
+  }
+}
+
+
+////////////////////////////////////////////////////
+////////// comparer deux dates de messages postés
+////////////////////////////////////////////////////
+
+int comparerDate(Message m1, Message m2) {
+  if (m1.date_publication.annee < m2.date_publication.annee) {
+    return 1;
+  } else if (m1.date_publication.annee == m2.date_publication.annee) {
+    if (m1.date_publication.mois < m2.date_publication.mois) {
+      return 1;
+    } else if (m1.date_publication.mois == m2.date_publication.mois) {
+      return m1.date_publication.jour < m2.date_publication.jour;
+    }
+  }
+  return 0;
+}
+
+////////////////////////////////////
+////////////Trier les messages
+////////////////////////////////////
+
+void trierMessages(Rubrique * rubrique) {
+  int i, j;
+  Message temp;
+
+  for (i = 1; i < rubrique -> taille_tab_messages; i++) {
+    temp = rubrique -> tab_messages[i];
+    j = i - 1;
+
+    while (j >= 0 && comparerDate(rubrique -> tab_messages[j], temp)) {
+      rubrique -> tab_messages[j + 1] = rubrique -> tab_messages[j];
+      j = j - 1;
+    }
+
+    rubrique -> tab_messages[j + 1] = temp;
+  }
+}
+
+//////////////////////////////////////////
+///// Afficher les messages triees
+//////////////////////////////////////////
+void afficherMessagesRubriqueTriee(Rubrique rubrique) {
+  int i, d, n;
+  trierMessages( & rubrique);
+  if (rubrique.taille_tab_messages > 0) {
+    do {
+      printf("choisissez : \n");
+      printf("1.Afficher tous les messages de la rubrique : \n");
+      printf("2.Saisir le nombre de messages que vous voulez afficher :\n");
+      printf("3. Quitter le programme : \n");
+      printf("votre choix : \n");
+      scanf("%d", & d);
+
+      switch (d) {
+      case 1:
+        printf("Messages de la rubrique \"%s\" par ordre chronologique de leur date de publication:\n", rubrique.theme);
+        for (i = 0; i < rubrique.taille_tab_messages; i++) {
+          afficherMessage(rubrique.tab_messages[i]);
+        }
+        break;
+      case 2:
+        printf("donner le nombre de messages a afficher \n");
+        scanf("%d", & n);
+        printf("Messages de la rubrique \"%s\" par ordre chronologique de leur date de publication:\n", rubrique.theme);
+        for (i = 0; i < n; i++) {
+          afficherMessage(rubrique.tab_messages[i]);
+        }
+        break;
+      case 3:
+        printf("Au revoir !\n");
+        break;
+      default:
+        printf(" choix invalide \n");
+
+      }
+    } while (d != 3);
+
+  } else {
+    printf("pas de messages a afficher");
+  }
+
+}
+
+////////////////////////////////////////////////////
+//////////////////// Afficher un forum selon son Id
+///////////////////////////////////////////////////
+
+void afficherForumPrecis(ListeForum * debut, int id, int n) {
+  if (debut == NULL) {
+    printf("la liste est vide pas de forums qui existent ");
+  } else {
+    ListeForum * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> forum.id_forum == id) {
+        afficherForum(temp -> forum, n);
+      }
+      temp = temp -> next;
+    }
+  }
+}
+
+////////////////////////////////////////////////////
+//////////////////// Afficher une rubrique selon son Id
+///////////////////////////////////////////////////
+void afficherRubriquePrecise(ListeRubrique * debut, int id, int a, int m) {
+  if (debut == NULL) {
+    printf("la liste est vide pas de rubriques qui existent ");
+  } else {
+    ListeRubrique * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> rubrique.id_rubrique == id) {
+        afficherRubrique(temp -> rubrique, a, m);
+      }
+      temp = temp -> next;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////
+//////////////////// Rechercher une rubrique selon son Id
+//////////////////////////////////////////////////////////
+Rubrique* rechercherRubriqueParID(ListeRubrique* debut, int id) {
+    ListeRubrique* temp = debut;
+    while (temp != NULL) {
+        if (temp->rubrique.id_rubrique == id) {
+            return &(temp->rubrique); // retourne un pointeur sur la rubrique trouvée
+        }
+        temp = temp->next;
+    }
+    return NULL; // rubrique non trouvée
+}
+
+
+///////////////////////////////////////////////////////////
+//////////////////// Afficher une rubrique selon son Id (méthode recherche)
+//////////////////////////////////////////////////////////
+void afficherProfilRubriquePrecise(ListeRubrique* debut) {
+    int id;
+    printf("Donner l'id de la rubrique recherchee: ");
+    if (scanf("%d", &id) != 1) {
+        printf("Entrée invalide pour l'ID de la rubrique.\n");
+        return;
+    }
+
+    Rubrique* rubriqueTrouvee = rechercherRubriqueParID(debut, id);
+    int i;
+
+    if (rubriqueTrouvee == NULL) {
+        printf("Aucune rubrique correspondant à l'ID %d n'a été trouvée.\n", id);
+    } else {
+        printf("Rubrique ID: %d\n", rubriqueTrouvee->id_rubrique);
+printf("!!!!!!!!!!!!!!!!!!!!!!! %d",rubriqueTrouvee->taille_tab_messages);
+        for (i = 0; i < rubriqueTrouvee->taille_tab_messages; i++) {
+            //if (rubriqueTrouvee->tab_messages[i].auteur.type_compte == 1) {
+                printf("Affichage du profil pour le message %d\n", i + 1);
+                afficherProfil(*(rubriqueTrouvee->tab_messages[i].auteur.profil));
+           // }
+        }
+    }
+}
+
+
+/*Rubrique rechercherRubriqueById(ListeRubrique * debut, int a, int m) {
+int id;
+printf("Donner l'id de la rubrique recherchee");
+scanf("%d",&id);
+  if (debut == NULL) {
+    printf("la liste est vide pas de rubriques qui existent ");
+   
+  } else {
+    ListeRubrique * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> rubrique.id_rubrique == id) {
+        afficherRubrique(temp -> rubrique, a, m);
+      }
+      temp = temp -> next;
+    }
+    return temp->rubrique;
+  }
+}*/
+
+
+///////////////////////////////////////////////////////
+//////////////////// Afficher un auteur selon son Id
+///////////////////////////////////////////////////////
+
+void afficherAuteurPrecis(ListeAuteur * debut, int id) {
+  if (debut == NULL) {
+    printf("Pas d'auteur correspondant a la recherche \n");
+  } else {
+    ListeAuteur * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> auteur.id_auteur == id) {
+        afficherAuteur(temp -> auteur);
+      }
+      temp = temp -> next;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////
+//////////////////// Afficher un auteur selon son pseudo
+///////////////////////////////////////////////////////
+void afficherAuteurByPseudo(ListeAuteur * debut) {
+char pseudo[20];
+printf("Donner le pseudo de l'auteur que vous recherchez \n");
+scanf("%s",pseudo);
+  if (debut == NULL) {
+    printf("Pas d'auteur correspondant a la recherche \n");
+  } else {
+    ListeAuteur * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (strcmp(temp -> auteur.profil->nom, pseudo) == 0) {
+        afficherAuteur(temp -> auteur);
+        break;
+      }
+      temp = temp -> next;
+    }
+    if (temp == NULL)
+    {
+    printf("Aucun utilisateur ayant le pseudo recherche \n");
+}
+  }
+}
+
+
+///////////////////////////////////////////////////////
+//////////////////// Afficher un profil selon son id
+///////////////////////////////////////////////////////
+void afficherProfilPrecis(ListeProfil * debut, int id) {
+  if (debut == NULL) {
+    printf("Pas de profil correspondant a la recherche \n");
+  } else {
+    ListeProfil * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> profil.id_profil == id) {
+        afficherProfil(temp -> profil);
+      }
+      temp = temp -> next;
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////
+//////////////////// Afficher un profil selon son num d'inscription
+////////////////////////////////////////////////////////////////////
+void afficherProfilByNumInscri(ListeProfil * debut) {
+int num_inscription;
+printf("Donner le numero du profil que vous recherchez \n");
+scanf("%d",&num_inscription);
+  if (debut == NULL) {
+    printf("Pas de profil correspondant a la recherche \n");
+  } else {
+    ListeProfil * temp;
+    temp = debut;
+    while (temp != NULL) {
+      if (temp -> profil.num_inscri == num_inscription) {
+        afficherProfil(temp -> profil );
+        break;
+      }
+      temp = temp -> next;
+    }
+    if (temp == NULL)
+    {
+    printf("Aucun profil ayant le numero d'inscription recherche \n");
+}
+  }
+}
+
+////////////////////////////////////////////////////////////////////
+//////////////////// Afficher tous les messages du jour
+////////////////////////////////////////////////////////////////////
+void AfficherTouslesMessagesdujour(ListeMessage * debut )
+{   struct tm * info ;
+    time_t t ;
+    time(&t);
+    info=localtime(&t);
+if(debut==NULL)
+{
+printf("la liste des messages est vide");
+}
+else
+{
+ListeMessage * temp ;
+int i ;
+temp = debut ;
+i=0;
+while(temp!=NULL)
+{
+ if((temp->message.date_publication.jour==info->tm_mday)&&(temp->message.date_publication.mois==info->tm_mon +1)&&(temp->message.date_publication.annee==info->tm_year+1900))
+ {
+  afficherMessage(temp->message);
+  i++;
+ }
+ temp=temp->next;
+ 
+}
+if(i==0)
+{
+printf("pas de messages poste aujourdhui");
+}
+}
+//stat
+}
+/****************************************************************************************************************************************************/
+
+///////////////////////////////////////////////////////////
+//////////////////// Afficher le nombre total de messages
+//////////////////////////////////////////////////////////
+
+int Nombredemessages (ListeMessage * debut)
+{    int i;
+     i=0;
+if(debut == NULL)
+{
+return i ;
+}
+else
+{
+ListeMessage * temp ;
+temp = debut ;
+while(temp!=NULL)
+{
+temp = temp -> next ;
+i++;
+}
+
+}
+return i ;
+}
+
+
+///////////////////////////////////////////////////////////
+//////////////////// Comparer deux dates
+//////////////////////////////////////////////////////////
+
+int comparerDates(Date date1, Date date2) {
+    // Comparaison des années
+    if (date1.annee < date2.annee) {
+        return -1; // date1 est avant date2
+    } else if (date1.annee > date2.annee) {
+        return 1;  // date1 est après date2
+    } else {
+        // Les années sont égales, comparaison des mois
+        if (date1.mois < date2.mois) {
+            return -1;
+        } else if (date1.mois > date2.mois) {
+            return 1;
+        } else {
+            // Les mois sont égaux, comparaison des jours
+            if (date1.jour < date2.jour) {
+                return -1;
+            } else if (date1.jour > date2.jour) {
+                return 1;
+            } else {
+                return 0; // Les dates sont égales
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////
+//////////////////// Afficher le nombre de messages postés par jour
+///////////////////////////////////////////////////////////////////
+
+void nb_message_par_jour(ListeMessage*debut,Date D)
+{
+ int i=0 ;
+ if (debut == NULL)
+ {
+  printf(" pas de messages postes le %d/%d/%d",D.jour,D.mois,D.annee);
+ }
+ else
+ {
+  ListeMessage * temp ;
+  temp = debut ;
+  while (temp!=NULL)
+  {
+  if(comparerDates(temp->message.date_publication,D)==0)
+  {
+  i++;
+}
+temp=temp->next ;
+}
+printf(" \n le nombre de messages postes le %d/%d/%d est %d \n",D.jour,D.mois,D.annee,i);
+ }
+ 
+}
+
+///////////////////////////////////////////////////////////////////
+//////////////////// Afficher le nombre de messages postés par semaine
+///////////////////////////////////////////////////////////////////
+void nb_message_semaine (ListeMessage * debut ,Date D)
+{   int i ;
+Date * Tableau_Date ;
+Tableau_Date = (Date *)calloc(7,sizeof(Date));
+for(i=0;i<7;i++)
+{
+Tableau_Date[i].jour = D.jour-i ;
+Tableau_Date[i].mois=D.mois ;
+Tableau_Date[i].annee=D.annee;
+}
+for(i=0;i<7;i++)
+{
+nb_message_par_jour(debut,Tableau_Date[i]);
+}
+}
+
+///////////////////////////////////////////////////////////////////
+//////////////////// Ajouter une date
+///////////////////////////////////////////////////////////////////
+ListeDate* Ajouter_Date(ListeDate * debut , Date D)
+{
+ListeDate * b ;
+b = (ListeDate*)malloc(sizeof(ListeDate));
+b->date = D ;
+b->next = NULL ;
+if (debut == NULL)
+{
+debut =b;
+}
+else
+{
+ ListeDate * temp ;
+ temp = debut ;
+ while(temp->next !=NULL)
+ {
+  temp = temp -> next ;
+ }
+ temp-> next = b ;
+}
+return debut ;
+}
+
+
+///////////////////////////////////////////////////////////////////
+//////////////////// Vérifier qu'une date existe
+///////////////////////////////////////////////////////////////////
+int existance_date(ListeDate * debut , Date D)
+{
+if (debut=NULL)
+{
+return 0;
+}
+else
+{
+ListeDate * temp ;
+temp= debut ;
+while(temp!=NULL)
+{
+if(comparerDates(D,temp->date)==0)
+{
+return 1;
+}
+temp=temp->next ;
+}
+}
+return 0 ;
+}
+///////////////////////////////////////////////////////////////////
+//////////////////// Vérifier que deux dates sont diffèrentes
+///////////////////////////////////////////////////////////////////
+ListeDate * Dates_Diff(ListeMessage * debut , ListeDate * debut1)
+{
+if (debut == NULL)
+{
+printf("la liste est vide");
+}
+else
+{
+ListeMessage * temp ;
+temp = debut ;
+//debut1=Ajouter_Date(debut1 , temp->message.date_publication);
+//temp=temp->next ;
+while(temp!=NULL)
+{
+if(existance_date(debut1,temp->message.date_publication)==0)
+{
+debut1=Ajouter_Date(debut1,temp->message.date_publication);
+temp=temp->next;
+}
+
+}
+
+}
+return debut1 ;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Afficher le nombre de messages postés par jour donné pour un auteur
+/////////////////////////////////////////////////////////////////////////////////////
+void nb_message_poste_auteur_jour_donne(ListeMessage * debut ,Date D, char pseudo[20] )
+{
+if(debut == NULL)
+{
+printf("pas de messages postes encore");
+}
+else
+{
+
+int i=0 ;
+/*printf("donner le pseudo de l auteur");
+scanf("%s",pseudo);*/
+ListeMessage * temp ;
+temp = debut ;
+while(temp!=NULL)
+{
+if((strcmp(pseudo,temp-> message.auteur.profil -> nom)==0)&&(comparerDates(D,temp->message.date_publication)==0))
+{
+i=i+1;
+}
+temp=temp->next ;
+}
+printf("le nombre de messages poste par cet auteur  le  %d/%d/%d est %d ",D.jour,D.mois,D.annee,i);
+}
+
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Afficher le nombre de messages postés par jour pour un auteur donné
+/////////////////////////////////////////////////////////////////////////////////////
+void nbr_message_auteur_par_jour(ListeMessage*debut,ListeDate* debut1)
+{   char pseudo[20];
+    printf("donner le pseudo que vous voulez");
+    scanf("%s",pseudo);
+debut1= Dates_Diff( debut , debut1);
+if(debut1==NULL)
+{
+printf("pas de messages encore poste");
+}
+else
+{
+ListeDate * temp ;
+temp = debut1 ;
+while(temp!=NULL)
+{
+nb_message_poste_auteur_jour_donne(debut,temp->date,pseudo);
+temp=temp->next ;
+}
+}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+void ecrire(ListeDate * debut,ListeMessage * debut1)
+{   debut =Dates_Diff(debut1,debut);
+if (debut == NULL)
+{
+printf("la liste est echec");
+}
+else
+{
+ListeDate* temp ;
+temp= debut ;
+while(temp!=NULL)
+{
+printf("%d %d %d",temp->date.annee,temp->date.jour,temp->date.mois);
+temp=temp->next;
+}
+}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Afficher la moyenne de messages postés pour un jour donné par auteur
+/////////////////////////////////////////////////////////////////////////////////////
+void moyenne_message_poste_auteur_jour_donne(ListeMessage * debut ,Date D, char pseudo[20] )
+{
+if(debut == NULL)
+{
+printf("pas de messages postes encore");
+}
+else
+{
+float s ;
+int i=0 ,l;
+l=Nombredemessages(debut);
+/*printf("donner le pseudo de l auteur");
+scanf("%s",pseudo);*/
+ListeMessage * temp ;
+temp = debut ;
+while(temp!=NULL)
+{
+if((strcmp(pseudo,temp-> message.auteur.profil -> nom)==0)&&(comparerDates(D,temp->message.date_publication)==0))
+{
+i=i+1;
+
+}
+temp=temp->next ;
+
+}
+s = (1.0 * i / l) * 100;
+printf("la moyenne de messages postes par cet auteur  le  %d/%d/%d est %.2f % ",D.jour,D.mois,D.annee,s);
+}
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Afficher le nombre de messages postés par jour donné pour un auteur donné
+/////////////////////////////////////////////////////////////////////////////////////
+void moyenne_message_auteur_par_jour(ListeMessage*debut,ListeDate* debut1)
+{   char pseudo[20];
+    printf("donner le pseudo que vous voulez");
+    scanf("%s",pseudo);
+debut1= Dates_Diff( debut , debut1);
+if(debut1==NULL)
+{
+printf("pas de messages encore poste");
+}
+else
+{
+ListeDate * temp ;
+temp = debut1 ;
+while(temp!=NULL)
+{
+moyenne_message_poste_auteur_jour_donne(debut,temp->date,pseudo);
+temp=temp->next ;
+}
+}
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Nombre de messages par jour
+/////////////////////////////////////////////////////////////////////////////////////
+int nombre_message_par_jour(ListeMessage*debut,Date D)
+{
+ int i=0 ;
+ if (debut == NULL)
+ {
+  printf(" pas de messages postes le %d/%d/%d",D.jour,D.mois,D.annee);
+ }
+ else
+ {
+  ListeMessage * temp ;
+  temp = debut ;
+  while (temp!=NULL)
+  {
+  if(comparerDates(temp->message.date_publication,D)==0)
+  {
+  i++;
+}
+temp=temp->next ;
+}
+printf(" \n le nombre de messages postes le %d/%d/%d est %d \n",D.jour,D.mois,D.annee,i);
+ }
+ return i ;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////////// Fréquentation du site
+/////////////////////////////////////////////////////////////////////////////////////
+void frequentation (ListeMessage * debut ,Date D)
+{   int i,j, MA ;
+Date * Tableau_Date ;
+
+Tableau_Date = (Date *)calloc(7,sizeof(Date));
+for(i=0;i<7;i++)
+{
+Tableau_Date[i].jour = D.jour-i ;
+Tableau_Date[i].mois=D.mois ;
+Tableau_Date[i].annee=D.annee;
+}
+int * Tableau_Visite ;
+Tableau_Visite=(int *)calloc(7,sizeof(int));
+
+for(i=0;i<7;i++)
+{
+Tableau_Visite[i]=nombre_message_par_jour(debut,Tableau_Date[i]);
+}
+MA=Tableau_Visite[0];
+printf("echec");
+for(i=0;i<7;i++)
+{  
+if(Tableau_Visite[i]>=MA)
+{
+MA =Tableau_Visite[i];
+j =i;
+}
+}
+printf("le jour ou on a plus de frequentation est le %d / %d / %d ou on %d",Tableau_Date[j].annee,Tableau_Date[j].mois,Tableau_Date[j].jour,Tableau_Visite[j]);
+}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// nombre de messages dans chaque rubrique
+///////////////////////////////////////////////////////////////
+
+void nombe_messages_rubrique(ListeRubrique * debut)
+{
+if(debut==NULL)
+{
+printf("pas de rubriques crees encore");
+}
+else
+{
+ListeRubrique* temp ;
+temp=debut;
+while(temp!=NULL)
+{
+printf("Rubrique:\n ID : %d \n theme : %s \n nombre de message :%d\n",temp->rubrique.id_rubrique,temp->rubrique.theme,temp->rubrique.taille_tab_messages);
+temp=temp->next ;
+}
+}
+}
+
+////////////////////////////////////////////////////////////////
+//////////////////// taille la moyenne des textes
+///////////////////////////////////////////////////////////////
+
+void taille_moyenne_messages(ListeMessage *debut)
+{
+  if(debut==NULL)
+  {
+  printf("pas de messages encore poste ");
+  }
+  else
+  {
+  int l ,s=0;
+  float M ;
+  ListeMessage * temp ;
+l=Nombredemessages(debut);
+temp = debut ;
+while(temp!=NULL)
+{
+s=strlen(temp->message.texte)+s;
+temp=temp->next ;
+}
+M = (s / l);
+printf("la moyenne de taille des messages postes est %.2f",M);
+  }
+
+}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// Recherche d un mot dans un texte de messages
+///////////////////////////////////////////////////////////////
+void recherche_mot_message(ListeMessage*debut)
+{
+char mot_recherche[max];
+char * resultat ;
+printf("donner le mot que vous recherchez");
+scanf("%s",mot_recherche);
+if(debut==NULL)
+{
+printf("la liste de messages est vide");
+scanf("%s",mot_recherche);
+}
+else
+{
+ListeMessage* temp ;
+temp=debut;
+while(temp!=NULL)
+{
+ resultat=strstr(temp->message.texte,mot_recherche);
+ if(resultat!=NULL)
+ {
+  printf("le mot se trouve dans le message possedant l ID: %d",temp->message.id);
+}
+temp=temp->next;
+}
+if(resultat==NULL)
+{
+printf("le mot n a pas ete retrouve");
+}
+}
+}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// supprimer un message
+///////////////////////////////////////////////////////////////
+
+ListeMessage * Supprimer_Message(ListeMessage * debut , int identificateur)
+{   int i=0 ;
+if (debut==NULL)
+{
+printf("la liste des messages est vide , pas de messages a supprimer");
+}
+else
+{
+ListeMessage * temp ;
+ListeMessage * temp1 ;
+ListeMessage * temp2 ;
+temp = debut ;
+while(temp!=NULL)
+{
+if(temp->message.id==identificateur)
+{
+i++;
+}
+temp=temp->next ;
+}
+if(i==0)
+{
+printf("le message que vous voulez effacer n existe pas ");
+return debut ;
+}
+else
+{
+if(debut->message.id==identificateur)
+{
+temp2=debut ;
+debut=debut->next;
+free(temp2);
+}
+else
+{
+temp1=debut;
+while(temp1->next->message.id!=identificateur)
+{
+temp1=temp1->next;
+
+}
+temp2=temp1->next;
+temp1->next=temp1->next->next;
+free(temp2);
+}
+return debut ;
+}
+}
+}
+
+////////////////////////////////////////////////////////////////
+//////////////////// Modifier un message
+///////////////////////////////////////////////////////////////
+ListeMessage * Changer_Contenu_Message(ListeMessage* debut)
+{
+  int identifiant,Choix ;
+  char remplacent1[15];
+  char remplacent2[max];
+  if (debut == NULL)
+  {
+  printf("la liste des messages est vide pas de messages a modifier");
+  }
+  else
+  {
+  printf("donner l\'identifiant du message que vous voulez modifiez");
+  scanf("%d",&identifiant);
+  ListeMessage * temp ;
+  int i;
+  temp = debut ;
+while(temp!=NULL)
+{
+if(temp->message.id==identifiant)
+{
+i++;
+}
+temp=temp->next;
+}
+if(i==0)
+{
+printf("le message que vous cherchez n\'existe pas , veuillez verifiez l\'identifiant");
+return debut;
+}
+else
+{ ListeMessage * temp2 ;
+temp2=debut ;
+while(temp2->message.id!=identifiant)
+{
+temp2=temp2->next;
+}
+do
+{
+printf("\nChoisissez:\n");
+printf("1-Changer le titre du message : \n");
+printf("2-changer le texte du message : \n");
+printf("3-Quittez cette fenetre : \n");
+printf("Choix : \n ");
+scanf("%d",&Choix);
+switch (Choix)
+{
+case 1 :
+{
+printf("donner le nouveau titre que vous voulez mettre : \n");
+scanf("%s",remplacent1);
+strcpy(temp2->message.titre,remplacent1);
+printf("\n Modification faite avec succes !");
+break;
+
+}
+case 2 :
+{
+printf("donner le nouveau texte que vous voulez saisir:\n");
+scanf("%s",remplacent2);
+strcpy(temp2->message.texte,remplacent2);
+printf("\n Modification faite avec succes!");
+break ;
+}
+case 3 :
+printf(" Pas de modifications faite ");
+break ;
+default :
+printf("Choix invalide ");
+break ;
+}
+}while(Choix != 3);
+}
+ 
+  }
+  return debut ;
+}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// Supprimer une rubrique
+///////////////////////////////////////////////////////////////
+ListeRubrique * Supprimer_Rubrique(ListeRubrique * debut )
+{
+int i=0 ;
+int identifiant ;
+if (debut == NULL)
+{
+printf("la liste des rubriques est vide , pas de rubriques a supprimer");
+}
+else
+{
+printf("Donner l\'identifiant de la rubrique a supprimer");
+scanf("%d",&identifiant);
+ListeRubrique *temp , * temp1 , *temp2 ;
+temp = debut ;
+while(temp!=NULL)
+{
+if(temp->rubrique.id_rubrique==identifiant)
+{
+i++;
+}
+temp=temp->next;
+}
+if(i==0)
+{
+printf("la rubrique que vous effacer n existe pas");
+return debut ;
+}
+else
+{
+if(debut->rubrique.id_rubrique==identifiant)
+{
+temp2 = debut ;
+debut = debut->next;
+free(temp2);
+}
+else
+{
+temp1=debut ;
+while(temp1->next->rubrique.id_rubrique!=identifiant)
+{
+temp1=temp1->next;
+}
+temp2=temp1->next;
+temp1->next=temp1->next->next;
+free(temp2);
+}
+return debut ;
+}
+}
+}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// Modifier une rubrique
+///////////////////////////////////////////////////////////////
+ListeRubrique * Modifier_Rubrique(ListeRubrique * debut)
+{
+ int identifiant , Choix ;
+ char remplacement1[max],remplacement2[45];
+ if(debut==NULL)
+ {
+  printf("la liste des rubriques est vide , pas de rubriques a modifier");
+ }
+ else
+ {
+  printf("donner l\'identifiant de la rubrique que vous voulez modifiez");
+  scanf("%d",&identifiant);
+  ListeRubrique * temp ;
+  int i,Choix ;
+  temp = debut ;
+  while(temp!=NULL)
+  {
+  if(temp->rubrique.id_rubrique==identifiant)
+  {
+  i++;
+}
+temp=temp->next ;
+}
+if(i==0)
+{
+printf("la rubrique que vous cherchez n \'existe pas , veuillez verifiez l\'identifiant");
+return debut ;
+}
+else
+{
+ListeRubrique * temp2 ;
+temp2=debut ;
+while(temp2->rubrique.id_rubrique!=identifiant)
+{
+temp2=temp2->next ;
+}
+
+do
+{
+
+printf("\nChoisissez : \n");
+printf("1-Changer le theme de la rubrique : \n");
+printf("2-Changer l'adresse mail du responsable : \n");
+printf("3-Ajouter un message a la rubrique\n");
+printf("4-Quittez cette fenetre : \n ");
+printf("Choix : \n ");
+scanf("%d",&Choix);
+switch(Choix)
+{
+case 1 :
+{
+printf("Donner le nouveau theme que vous voulez mettre : \n");
+scanf("%s",remplacement1);
+strcpy(temp2->rubrique.theme,remplacement1);
+printf("\n Modification faite avec succes !");
+break;
+}
+   case 2 :
+    {
+    printf("Donner la nouvelle adresse mail de l\'animateur");
+    scanf("%s",remplacement2);
+    strcpy(temp2->rubrique.adresse_mail_animateur,remplacement2);
+    printf("\n Modification faite avec succes !");
+}
+case 3 :// ajouter un message
+{
+temp2->rubrique.taille_tab_messages++;
+temp2->rubrique.tab_messages=(Message *)realloc(temp2->rubrique.tab_messages,temp2->rubrique.taille_tab_messages*sizeof(Message));
+temp2->rubrique.tab_messages[temp2->rubrique.taille_tab_messages-1]=saisirMessage();
+printf("Ajout fait avec succes");
+break ;
+}
+case 4 :
+printf("Pas de modifications faites");
+break;
+default :
+printf("Choix invalide");
+break ;
+}
+}while(Choix != 4);
+}
+ }
+return debut ;
+}
+
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// Supprimer un profil
+///////////////////////////////////////////////////////////////
+ListeProfil * Supprimer_Profil(ListeProfil * debut)
+{
+int i=0 ;
+int identifiant ;
+if (debut == NULL)
+{
+printf("la liste de Profils est vide , pas de Profils a supprimer");
+}
+else
+{
+printf("Donner l\'identifiant du profil a supprimer");
+scanf("%d",&identifiant);
+ListeProfil *temp , * temp1 , *temp2 ;
+temp = debut ;
+while(temp!=NULL)
+{
+if(temp->profil.id_profil==identifiant)
+{
+i++;
+}
+temp=temp->next;
+}
+if(i==0)
+{
+printf("le profil  que vous  voulez effacer n existe pas");
+return debut ;
+}
+else
+{
+if(debut->profil.id_profil==identifiant)
+{
+temp2 = debut ;
+debut = debut->next;
+free(temp2);
+}
+else
+{
+temp1=debut ;
+while(temp1->next->profil.id_profil!=identifiant)
+{
+temp1=temp1->next;
+}
+temp2=temp1->next;
+temp1->next=temp1->next->next;
+free(temp2);
+}
+return debut ;
+}
+}
+}
+
+
+////////////////////////////////////////////////////////////////
+//////////////////// Modifier un profil
+///////////////////////////////////////////////////////////////
+ListeProfil * Modifier_Profil(ListeProfil * debut)
+{
+int identifiant , Choix ;
+char remplacement2[45] ,remplacement1[20];
+long int remplacement3;
+if(debut==NULL)
+{
+printf("la liste des profils est vide , pas de profils a modifier");
+}
+else
+{
+printf("donnant l\'identifiant du profil que vous voulez modifier");
+scanf("%d",&identifiant);
+ListeProfil * temp ;
+int i ;
+temp=debut ;
+while(temp!=NULL)
+{
+if(temp->profil.id_profil==identifiant)
+{
+i++;
+}
+temp=temp->next;
+}
+if(i==0)
+{printf("le profil que vous cherchez n \'existe pas , veuillez verifiez l \'identifiant ");
+return debut ;
+}
+else
+{
+ListeProfil * temp2;
+temp2=debut ;
+while(temp2->profil.id_profil!=identifiant)
+{
+temp2=temp2->next;
+}
+do
+{
+printf("\nChoisissez : \n");
+printf("1-Changer l\'adresse : \n");
+printf("2-Changer l\'adresse mail \n");
+printf("3-Changer le numero de telephone \n");
+   printf("4-Quittez cette fenetre : \n ");
+   printf("Choix : \n ");
+   scanf("%d",&Choix);
+   switch(Choix)
+   {
+    case 1 :
+    {
+    printf("Donner la nouvelle adresse : \n ");
+    scanf("%s",remplacement1);
+    strcpy(temp2->profil.adresse,remplacement1);
+    printf("\n Modification faite aves succes !");
+    break;
+}
+case 2 :
+{
+printf("Donner la nouvelle adresse mail \n");
+scanf("%s",remplacement2);
+strcpy(temp2->profil.adresse_mail,remplacement2);
+printf("\n Modification faite avec succes !");
+break;
+}
+case 3 :
+{
+   printf("donner le nouveau numero de telephone \n");
+scanf("%ld",&remplacement3);
+temp2->profil.num_tel=remplacement3;
+break;
+}
+case 4 :
+printf("Pas de modifications faites");
+break;
+default :
+   printf("Choix invalide");
+   break;
+
+}
+}while(Choix!=4);
+
+}
+}
+return debut ;
+}
+
+////////////////////////////////////////////////////////////////
+//////////////////// Lire des messages à partir d'un fichier
+///////////////////////////////////////////////////////////////
+Message Lire(const char *nomfich)
+{   Message message ;
+FILE *FM = fopen(nomfich,"r");
+if(FM == NULL)
+{
+fprintf(stderr,"Erreur de l' ouverture du fichier %s \n",nomfich);
+exit(EXIT_FAILURE);
+}
+    while(fscanf(FM,"%d",&message.type)==1)
+    {
+    fgetc(FM);
+    fgets(message.titre,sizeof(message.titre),FM);
+    fgets(message.texte,sizeof(message.texte),FM);
+    fscanf(FM,"%d / %d / %d",&message.date_publication.jour,&message.date_publication.mois,&message.date_publication.annee);
+    //fgets(message.auteur.profil->nom, sizeof(message.auteur.profil->nom),FM);
+    fscanf(FM,"%s",message.auteur.profil->nom);
+        fscanf(FM, "%d/%d/%d", &message.auteur.date_premier.jour, &message.auteur.date_premier.mois, &message.auteur.date_premier.annee);
+        fscanf(FM, "%d/%d/%d", &message.auteur.date_dernier.jour, &message.auteur.date_dernier.mois, &message.auteur.date_dernier.annee);
+
+        fscanf(FM, "%d", &message.auteur.nb_msp);
+
+        fscanf(FM, "%d", &message.id);
+}
+fclose(FM);
+return message ;
+}
+
+/****************************************************************************************************************************************************************/
+///////////////////////////////////////////////////////////////////////////////////////
+
+void free_list(ListeAuteur *liste) {
+    ListeAuteur *tmp;
+
+    while (liste != NULL) {
+        tmp = liste;
+        liste = liste->next;
+
+        free(tmp->auteur.profil->nom);
+        free(tmp->auteur.profil->prenom);
+        free(tmp->auteur.profil);
+        free(tmp);
+    }
+}
+
+ListeAuteur *charger_auteurs(char *nomFichier) {
+    FILE *fichier = fopen(nomFichier, "r");
+    if (fichier == NULL) {
+        perror("Erreur lors de l'ouverture du fichier");
+        return NULL;
+    }
+
+    ListeAuteur *liste_auteur = NULL;
+    ListeAuteur *tmp = NULL;
+
+    while (!feof(fichier)) {
+        Auteur auteur;
+        Profil *profil = (Profil *)malloc(sizeof(Profil));
+        if (profil == NULL) {
+            perror("Erreur d'allocation de mémoire");
+            fclose(fichier);
+            free_list(liste_auteur);
+            return NULL;
+        }
+
+        fscanf(fichier, "%d#%ms#%ms#%d/%d/%d#%d#%d/%d/%d#%ld#%ms#%ms",
+               &auteur.id_auteur, &profil->nom, &profil->prenom,
+               &profil->date_naissance.jour, &profil->date_naissance.mois, &profil->date_naissance.annee,
+               &auteur.type_compte,
+               &auteur.date_premier.jour, &auteur.date_premier.mois, &auteur.date_premier.annee,
+               &auteur.date_dernier.jour, &auteur.date_dernier.mois, &auteur.date_dernier.annee,
+               &profil->num_tel, &profil->adresse_mail, &profil->adresse);
+
+        auteur.profil = profil;
+
+        if (liste_auteur == NULL) {
+            liste_auteur = (ListeAuteur *)malloc(sizeof(ListeAuteur));
+            if (liste_auteur == NULL) {
+                perror("Erreur d'allocation de mémoire");
+                fclose(fichier);
+                free(profil->nom);
+                free(profil->prenom);
+                free(profil);
+                free_list(liste_auteur);
+                return NULL;
+            }
+            liste_auteur->auteur = auteur;
+            liste_auteur->next = NULL;
+            tmp = liste_auteur;
+        } else {
+            tmp->next = (ListeAuteur *)malloc(sizeof(ListeAuteur));
+            if (tmp->next == NULL) {
+                perror("Erreur d'allocation de mémoire");
+                fclose(fichier);
+                free(profil->nom);
+                free(profil->prenom);
+                free(profil);
+                free_list(liste_auteur);
+                return NULL;
+            }
+            tmp->next->auteur = auteur;
+            tmp->next->next = NULL;
+            tmp = tmp->next;
+        }
+    }
+
+    fclose(fichier);
+    return liste_auteur;
+}
+
+void ecrire_auteurs(ListeAuteur *liste, char *nomFichier) {
+    ListeAuteur *tmp = liste;
+    FILE *fichier = fopen(nomFichier, "w");
+
+    if (fichier == NULL) {
+        perror("Erreur lors de la création du fichier");
+        return;
+    }
+
+    while (tmp != NULL) {
+        Auteur *auteur = &(tmp->auteur);
+        fprintf(fichier, "%d # %s # %s # %d/%d/%d # %d # %d/%d/%d # %ld # %s # %s\n",
+                auteur->id_auteur, auteur->profil->nom, auteur->profil->prenom,
+                auteur->profil->date_naissance.jour, auteur->profil->date_naissance.mois, auteur->profil->date_naissance.annee,
+                auteur->type_compte,
+                auteur->date_premier.jour, auteur->date_premier.mois, auteur->date_premier.annee,
+                auteur->date_dernier.jour, auteur->date_dernier.mois, auteur->date_dernier.annee,
+                auteur->profil->num_tel, auteur->profil->adresse_mail, auteur->profil->adresse);
+        tmp = tmp->next;
+    }
+
+    fclose(fichier);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+int  main() {
+  Forum forum;
+  Rubrique rubrique;
+  Profil profil;
+  Auteur auteur;
+  Message message , m1;
+  MESS_REP MR;
+  int choix, choix1,choix2,choix3,choix4, choix5, n, m, i, nb_auteur, nb_rubrique, nb_message, nb_forum, nb_profil;
+  ListeAuteur * liste_auteur = NULL;
+  ListeRubrique * liste_rubrique = NULL;
+  ListeForum * liste_forum = NULL;
+  ListeProfil * liste_profil = NULL;
+  ListeMessage * liste_message = NULL;
+  ListeReponse * liste_reponse = NULL;
+  int id_reponse, id_recherche;
+  char theme[max], theme_rubrique[max];
+  ListeRubrique * tempRubrique;
+  int id_forum, id_rubrique, id_aut,id_profil;
+  FILE * FM , *FR ,*FP,*FA,*FF;
+  int ir, ifr,ifrr,l,identificateur ;
+  Date D ;
+  ListeDate * liste_date = NULL ;
+  ListeAuteur *liste_auteur1 = charger_auteurs("auteurs.txt");
+
+  printf("Bienvenue dans le forum !\n");
+
+  do {
+    printf("\n Menu:\n");
+    printf("\n Choisissez parmi les options suivantes:\n");
+   
+      printf("1. Forum \n");
+        printf("2. Rubrique\n");
+        printf("3. Profil\n");
+        printf("4. Auteur\n");
+        printf("5. Message\n");
+        printf("6. Statistiques \n");
+        printf("7. Quitter\n");
+   
+     printf("Choix : ");
+    scanf("%d", & choix);
+
+     switch (choix) {
+   case 1:
+    {
+
+    do {
+printf("\n Choisissez parmi les options suivantes:\n");
+       printf("1. Ajouter un nouveau forum\n");
+       printf("2. Afficher un forum a partir d'un id \n");
+       printf("3. Ajouter plusieurs forums\n");
+       printf("4. Afficher la liste des forums\n");
+    printf("5. Quitter\n");
+    printf("Choix : ");
+   
+    scanf("%d", & choix1);
+    switch (choix1) {
+case 1:
+   {  // Créer un nouveau forum
+     forum = saisirForum();
+     FF=fopen("forum.txt","w");
+      if(FF==NULL)
+     {
+     printf("erreur lors de l'ouverture d un fichier ");
+     exit(1);
+}
+else
+{
+ fprintf(FF,"Adresse internet du forum : %s \nAdresse mail du responsable : %s \nID du forum : %d \n",forum.adresse_internet,forum.adresse_mail_responsable,forum.id_forum);
+
+ if(forum.taille_rubriques>0)
+ {
+   for(ifr=0; ifr<=forum.taille_rubriques;ifr++)
+   {
+ fprintf(FF,"Theme de la rubrique : %s \nDate de creation de la rubrique : %d/%d/%d \nAdresse mail de l'animateur : %s \nID de la rubrique : %d \n",forum.rubriques [ifr].theme,forum.rubriques[ifr].date_creation.annee,forum.rubriques[ifr].date_creation.mois,forum.rubriques[ifr].date_creation.jour,forum.rubriques[ifr].adresse_mail_animateur,forum.rubriques[ifr].id_rubrique);
+        if (forum.rubriques[ifr].taille_tab_messages>0)
+       
+        {  fprintf(FF,"les messages postes dans la rubrique sont les suivants: \n");
+         for(ifrr=0;ifrr<=forum.rubriques[ifr].taille_tab_messages;ifrr++)
+         {  
+     
+           fprintf(FF,"ID du message: %d \nTitre de ce message : %s\nTexte de ce message : %s \nType du message (1 si c est une reponse a un autre message , 0 message ordinaire):%d \nDate du publication du message : %d / %d / %d \nID de l'Auteur de ce message: %d \n",forum.rubriques[ifr].tab_messages[ifrr].id,forum.rubriques[ifr].tab_messages[ifrr].titre,forum.rubriques[ifr].tab_messages[ifrr].texte,forum.rubriques[ifr].tab_messages[ifrr].type,forum.rubriques[ifr].tab_messages[ifrr].date_publication.annee,forum.rubriques[ifr].tab_messages[ifrr].date_publication.mois,forum.rubriques[ifr].tab_messages[ifrr].date_publication.jour);  
+ }
+}
+   }
+}
+
+fclose(FF);
+}
+
+     liste_forum = ajouterForumliste(liste_forum, forum);
+     break;
+     }
+   case 2:
+    {
+
+     // Afficher un forum
+     printf("Donner le nombre de rubriques %c afficher", 133);
+     scanf("%d", & n);
+     printf("donner l id du forum a afficher ");
+     scanf("%d", & id_forum);
+     afficherForumPrecis(liste_forum, id_forum, n);
+     break;
+     }
+   case 3:
+    {
+
+     // Créer une liste de forums
+     printf("donner le nombre de forums que vous voulez ajouter ");
+     scanf("%d", & nb_forum);
+     for (i = 0; i < nb_forum; i++)
+ {
+       forum = saisirForum();
+       liste_forum = ajouterForumliste(liste_forum, forum);
+     }
+     break;
+     }
+   case 4:
+    {
+
+     // Afficher la liste des forums
+     printf("Donner le nombre de rubriques %c afficher", 133);
+     scanf("%d", & n);
+     afficherlisteForum(liste_forum, n);
+     break;
+     }
+ case 5:
+  break;
+}
+}while (choix1 !=5);
+break;
+}
+   case 2:
+    {
+
+do{
+
+    printf("\n Choisissez parmi les options suivantes:\n");
+    printf("1. Ajouter une nouvelle rubrique\n");
+    printf("2. Afficher une rubrique a partir d'un id\n");
+    printf("3. Ajouter plusieurs rubriques\n");
+    printf("4. Afficher la liste des rubriques\n");
+    printf("5. Afficher les profils d'une rubrique\n");
+printf("6. Afficher tous les profils d'une rubrique \n");  
+printf("7. Supprimer une rubrique \n");
+printf("8. Modifier une rubrique \n");
+    printf("9. Quitter\n");
+    scanf("%d", & choix2);
+    switch (choix2) {
+case 1:
+ // Créer une nouvelle rubrique
+     rubrique = saisirRubrique();
+     FR=fopen("rubrique.txt","w+");
+   
+     if(FR==NULL)
+     {
+     printf("erreur lors de l'ouverture d un fichier ");
+     exit(1);
+ }
+else
+{
+fprintf(FR,"Theme de la rubrique : %s \nDate de creation de la rubrique : %d/%d/%d \nAdresse mail de l'animateur : %s \nID de la rubrique : %d \n",rubrique.theme,rubrique.date_creation.annee,rubrique.date_creation.mois,rubrique.date_creation.jour,rubrique.adresse_mail_animateur,rubrique.id_rubrique);
+fprintf(FR,"les messages postes dans la rubrique sont les suivants: \n");
+if(rubrique.taille_tab_messages>0)
+{   fprintf(FR,"les messages postes dans la rubrique sont les suivants: \n");
+  for(ir=0;ir<rubrique.taille_tab_messages;ir++)
+{
+ fprintf(FR,"ID du message: %d \nTitre de ce message : %s\nTexte de ce message : %s \nType du message (1 si c est une reponse a un autre message , 0 message ordinaire):%d \nDate du publication du message : %d / %d / %d \nPseudo de l'Auteur de ce message : %s \nID de l'Auteur de ce message: %d \n",rubrique.tab_messages[ir].id,rubrique.tab_messages[ir].titre,rubrique.tab_messages[ir].texte,rubrique.tab_messages[ir].type,rubrique.tab_messages[ir].date_publication.annee,rubrique.tab_messages[ir].date_publication.mois,rubrique.tab_messages[ir].date_publication.jour,rubrique.tab_messages[ir].auteur.profil->nom,rubrique.tab_messages[ir].auteur.id_auteur);
+}
+}
+fclose(FR);
+}
+     liste_rubrique = ajouterRubriqueListe(liste_rubrique, rubrique);
+   
+break;
+case 2:
+ // Afficher la rubrique
+     printf("Donner le nombre de sites associ%cs %c la rubrique %c afficher", 130, 133, 133);
+     scanf("%d", & n);
+     printf("Donner le nombre de messages de la rubrique %c afficher", 133);
+     scanf("%d", & m);
+     printf("donner l id de la rubrique a afficher");
+     scanf("%d", & id_rubrique);
+     afficherRubriquePrecise(liste_rubrique, id_rubrique, n, m);
+     break;
+case 3:
+// Créer une liste de rubriques
+     printf("donner le nombre de rubriques que vous voulez ajouter ");
+     scanf("%d", & nb_rubrique);
+     for (i = 0; i < nb_rubrique; i++) {
+       rubrique = saisirRubrique();
+       liste_rubrique = ajouterRubriqueListe(liste_rubrique, rubrique);
+     }
+     break;
+
+case 4:
+// Afficher la liste des rubriques
+     do {
+       printf("Donner le nombre de sites associ%cs %c la rubrique %c afficher", 130, 133, 133);
+       scanf("%d", & n);
+       printf("Donner le nombre de messages de la rubrique %c afficher", 133);
+       scanf("%d", & m);
+     } while ((n < 0) || (m < 0));
+
+     afficherLesRubriques(liste_rubrique, n, m);
+     break;
+case 5:
+ // Afficher les profils d'une rubrique
+     printf("Donner le nom de la rubrique dont vous souhaitez afficher les profils \n");
+     scanf("%s", theme_rubrique);
+     afficherProfilsRubrique(liste_rubrique, theme_rubrique);
+     break;
+
+case 6:
+//afficher les profils associés à une rubrique précise
+afficherProfilRubriquePrecise(liste_rubrique);
+    break;
+case 7:
+// supprimer une rubrique suivant l'id
+   liste_rubrique=Supprimer_Rubrique(liste_rubrique );
+   break ;
+    case 8:
+    // Modifier le contenu d une rubrique
+   liste_rubrique = Modifier_Rubrique(liste_rubrique);
+   break ;
+case 9:
+break;
+}
+
+
+}while (choix2 != 9);
+break;
+}
+  case 3:
+  {
+
+   do{
+
+printf("\n Choisissez parmi les options suivantes:\n");
+       printf("1. Ajouter un nouveau profil\n");
+       printf("2. Afficher un profil a partir d'un id\n");
+       printf("3. Ajouter plusieurs profils\n");
+       printf("4. Afficher la liste des profils\n");
+       printf("5. Afficher profil a partir d'un num d'inscription \n");
+       printf("6. Supprimer un profil \n");
+       printf("7. Modifier un profil \n");
+    printf("8. Quitter\n");
+    scanf("%d", & choix3);
+    switch (choix3) {
+    case 1:
+// Créer un nouveau profil
+   profil = saisirProfil();
+   /*FP=fopen("profil.txt","a+");
+   if(FP==NULL)
+   {
+     printf("erreur lors de l'ouverture d un fichier ");
+     exit(1);
+}
+else
+{
+  fprintf(FP,"ID du profil : %d \nNum d'inscription : %d \nNom : %s \nPrenom: %s \nAdresse: %s \nDate de naissance : %d/%d/%d \nAdresse mail : %s \nNumero de telephone : %ld \n",profil.id_profil,profil.num_inscri,profil.nom,profil.prenom,profil.adresse,profil.date_naissance.annee,profil.date_naissance.mois,profil.date_naissance.jour,profil.adresse_mail,profil.num_tel);
+  fclose(FP);
+}*/
+   liste_profil = ajouterProfilListe(liste_profil, profil);
+   break;
+case 2:
+     // Afficher le profil
+     printf("donner l'identifiant de profil que vous voulez afficher");
+     scanf("%d",&id_profil);
+     afficherProfilPrecis(liste_profil,id_profil);
+     break;
+case 3:
+     // Créer une liste de profils
+     printf("donner le nombre de profils que vous voulez ajouter ");
+     scanf("%d", & nb_profil);
+     for (i = 0; i < nb_profil; i++) {
+       profil = saisirProfil();
+       liste_profil = ajouterProfilListe(liste_profil, profil);
+     }
+     break;
+case 4:
+     // Afficher la liste des profils
+     afficherListeProfil(liste_profil);
+     break;
+    case 5:
+    // Afficher profil à partir d'un numéro d'inscription
+    afficherProfilByNumInscri(liste_profil);
+    break;
+case 6:
+// Supprimer un profil
+   liste_profil=Supprimer_Profil(liste_profil);
+   break ;  
+    case 7 :
+// Modifier un profil
+    liste_profil= Modifier_Profil(liste_profil);
+    case 8:
+    break;
+    }
+     }while (choix3 !=8);
+     break;
+ }
+   case 4:
+    {
+
+    do{
+
+
+printf("\n Choisissez parmi les options suivantes:\n");
+       printf("1. Ajouter un auteur\n");
+       printf("2. Afficher un auteur a partir d'un id \n");
+       printf("3. Ajouter plusieurs auteurs\n");
+       printf("4. Afficher la liste des auteurs\n");
+       printf("5. Afficher un auteur a partir d'un pseudo \n");
+    printf("6. Quitter\n");
+   
+scanf("%d", & choix4);
+    switch (choix4) {
+    case 1:
+    // Créer un auteur
+     auteur = saisirAuteur();  
+     /*FA=fopen("auteur.txt","w+");
+       if(FA==NULL)
+     {
+     printf("erreur lors de l'ouverture d un fichier ");
+     exit(1);
+}
+else
+{  
+fprintf(FA, "Date du premier message poste : %d/%d/%d\nDate du dernier message poste : %d/%d/%d \nNombre de message poste : %d \nID de l auteur :%d \n",auteur.date_premier.annee,auteur.date_premier.mois,auteur.date_premier.jour,auteur.date_dernier.annee,auteur.date_dernier.mois,auteur.date_dernier.jour,auteur.nb_msp,auteur.id_auteur);
+    if (auteur.type_compte==1)
+    {  fprintf(FA,"vous possedez un compte dans le forum");
+     fprintf(FA,"ID du profil : %d \nNum d'inscription : %d \nNom : %s \nPrenom: %s \nAdresse: %s \nDate de naissance : %d/%d/%d \nAdresse mail : %s \nNumero de telephone : %ld \n",auteur.profil->id_profil,auteur.profil->num_inscri,auteur.profil->nom,auteur.profil->prenom,auteur.profil->adresse,auteur.profil->date_naissance.annee,auteur.profil->date_naissance.mois,auteur.profil->date_naissance.jour,auteur.profil->adresse_mail,auteur.profil->num_tel);
+}
+fclose(FA);
+
+}*/
+liste_auteur = ajouterAuteurListe(liste_auteur, auteur);
+printf("ici imoression liste depuis file avant\n");
+afficherLesAuteurs(liste_auteur1);
+ecrire_auteurs(liste_auteur1, "auteurs.txt");
+printf("ici imoression liste depuis file apres\n");
+afficherLesAuteurs(liste_auteur1);
+     break;
+    case 2:
+      printf("Donner l'identifiant de l'auteur que vous souhaitez afficher ");
+      scanf("%d", & id_aut);
+      afficherAuteurPrecis(liste_auteur, id_aut);
+      break;
+    case 3:
+    // Créer une liste d'auteurs
+     printf("donner le nombre d'auteurs que vous voulez ajouter ");
+     scanf("%d", & nb_auteur);
+     for (i = 0; i < nb_auteur; i++) {
+       auteur = saisirAuteur();
+       liste_auteur = ajouterAuteurListe(liste_auteur, auteur);
+     }
+     break;
+    case 4:
+    // Afficher la liste des auteurs
+     afficherLesAuteurs(liste_auteur);
+     break;
+    case 5:
+     afficherAuteurByPseudo(liste_auteur);
+     break;
+    case 6:
+    break;
+   
+    }
+    }while (choix4 != 6);
+    break;
+    }
+case 5:
+{
+
+do{
+
+printf("\n Choisissez parmi les options suivantes:\n");
+printf("1. Ajouter un nouveau message\n");
+       printf("2. Ajouter plusieurs messages\n");
+       printf("3. Afficher la liste des messages\n");
+       printf("4. Afficher la liste des reponses\n");
+       printf("5. Afficher les reponses d'un message \n");
+       printf("6. Afficher les messages d'une rubrique triés par ordre chronologique de leur date de publication\n");
+       printf("7. Supprimer un message \n");
+       printf("8. Modifier un message \n");
+printf("9. Quitter\n");
+    scanf("%d", & choix5);
+    switch (choix5) {
+    case 1:
+     // Créer un nouveau message
+     message = saisirMessage();
+
+     if (message.type == 1) {
+       if (liste_message != NULL) {
+         // si message.type =1 ce est message est une reponse à un autre message
+         afficherListeInfoMessage(liste_message);
+         printf("donner l'identifiant du message auquel vous voulez repondre ");
+         scanf("%d", & id_reponse);
+         MR = saisirmessage_reponse(message, id_reponse);
+         liste_reponse = ajouterReponseListe(liste_reponse, MR);
+       } else {
+         printf("ce message ne peut pas etre une reponse");
+         message.type = 0;
+       }
+}
+    /* FM=fopen("message.txt","w+");
+ 
+     if(FM==NULL)
+     {
+     printf("erreur lors de l'ouverture d un fichier ");
+     exit(1);
+}
+else
+{fprintf(FM,"%d",message.type);
+ fprintf(FM,"\n");
+ fputs(message.titre,FM);
+ fprintf(FM,"\n");
+ fputs(message.texte,FM);
+ fprintf(FM,"\n");
+  fprintf(FM,"%d/%d/%d",message.date_publication.jour,message.date_publication.mois,message.date_publication.annee);
+  fprintf(FM,"\n");
+ fputs(message.auteur.profil->nom,FM);
+ fprintf(FM,"\n");
+ fprintf(FM,"%d/%d/%d",message.auteur.date_premier.jour,message.auteur.date_premier.mois,message.auteur.date_premier.annee);
+ fprintf(FM,"\n ");
+ fprintf(FM,"%d/%d/%d",message.auteur.date_dernier.jour,message.auteur.date_dernier.mois,message.auteur.date_dernier.annee);
+       fprintf(FM,"\n");
+       fprintf(FM,"%d",message.auteur.nb_msp);
+       fprintf(FM,"\n");
+ fprintf(FM,"%d \n",message.id);
+ fprintf(FM,"\n");
+//fprintf(FM,"ID du message: %d \nTitre de ce message : %s\nTexte de ce message : %s \nType du message (1 si c est une reponse a un autre message , 0 message ordinaire):%d \nDate du publication du message : %d / %d / %d \nPseudo de l'Auteur de ce message : %s \nID de l'Auteur de ce message: %d \n",message.id,message.titre,message.texte,message.type,message.date_publication.annee,message.date_publication.mois,message.date_publication.jour,message.auteur.profil->nom,message.id);
+fclose(FM);
+}
+m1=Lire("message.txt");*/
+
+      liste_message = ajouterMessageListe(liste_message, m1);
+      break;
+    case 2:
+    // Créer une liste de messages
+     printf("donner le nombre de messages que vous voulez ajouter ");
+     scanf("%d", & nb_message);
+     for (i = 0; i < nb_message; i++) {
+       message = saisirMessage();
+       liste_message = ajouterMessageListe(liste_message, message);
+     }
+     break;
+    case 3:
+    // afficher la liste de messages
+     afficherListeMessage(liste_message);
+     break;
+case 4:
+// afficher la liste de réponses
+     afficherlisteReponse(liste_reponse);
+     break;
+case 5:
+//Afficher les reponses d'un message
+
+// faire la recherche en utilisant l id du message  
+     printf("Donnez l'identifiant du message pour lequel vous souhaitez afficher les réponses.");
+     scanf("%d", & id_recherche);
+     afficherReponsePrecise(liste_reponse, id_recherche);
+     break;
+case 6:
+// afficher les messages d une rubrique donnée par ordre chronologique de leur date de publication
+     printf("donner le theme de la rubrique  ");
+     scanf("%s", theme);
+     tempRubrique = liste_rubrique;
+     while (tempRubrique != NULL) {
+
+       if (strcmp(tempRubrique -> rubrique.theme, theme) == 0) {
+         //  afficher  tous les messages  'triés' suivant l ordre chronologique
+         afficherMessagesRubriqueTriee(tempRubrique -> rubrique);
+         break;
+       }
+       tempRubrique = tempRubrique -> next;
+     }
+
+     break;
+ 
+case 7:
+//supprimer un message suivant l'id
+printf("donner l'identificateur du message que vous voulez supprimer");
+scanf("%d",&identificateur);
+liste_message=Supprimer_Message(liste_message ,  identificateur);
+break ;
+case 8:  
+// Modifier le texte d'un message
+    liste_message=Changer_Contenu_Message(liste_message);
+    break ;
+case 9:
+printf("Au revoir !\n");
+      break;
+   
+    }
+   
+  }while (choix4 != 9);
+  break;
+}
+  case 6:
+  {
+ 
+  // Statistiques
+  // afficher tous les messages du jour
+   //AfficherTouslesMessagesdujour(liste_message);
+   //l=Nombredemessages (liste_message);// nombre total des messages dans la liste des messages
+   //printf("%d",l);
+   /*printf("echec");
+   printf("donner une date ");
+   printf("le jour");
+   scanf("%d",&D.jour);
+   printf("le mois");
+   scanf("%d",&D.mois);
+   printf("l annee");
+   scanf("%d",&D.annee);
+   //nb_message_par_jour(liste_message,D);
+   //nb_message_semaine(liste_message,D);
+   //nb_message_poste_auteur_jour_donne(liste_message,D);
+   //nbr_message_auteur_par_jour(liste_message,liste_date);
+   //ecrire(liste_date,liste_message);
+   //moyenne_message_auteur_par_jour(liste_message,liste_date);*/
+   //nombe_messages_rubrique(liste_rubrique);
+   //frequentation(liste_message,D);
+   //taille_moyenne_messages(liste_message);
+   recherche_mot_message(liste_message);
+   break ;
+  }
+  case 7:
+  printf("Au revoir !\n");
+      break;
+ 
+default:
+     printf("Choix invalide. Veuillez choisir une option valide.\n");
+}    
+  } while (choix != 7);
+  return 0;
+
+}
